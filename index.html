@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arun Sharma Addition game</title>
+  <style>
+    .controls {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .controls button {
+      margin: 5px;
+      padding: 8px 15px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .circle-container {
+      width: 300px;
+      height: 300px;
+      border: 2px solid #333;
+      border-radius: 50%;
+      margin: 20px auto;
+      position: relative;
+    }
+
+    .number {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .input-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .stopwatch {
+      text-align: center;
+      font-size: 20px;
+      margin-top: 10px;
+    }
+
+    .result {
+      text-align: center;
+      font-size: 18px;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h2 style="text-align: center;">Arun Sharma Addition game</h2>
+
+  <div class="controls">
+    <button onclick="setLevel(1)">Level 1</button>
+    <button onclick="setLevel(2)">Level 2</button>
+    <button onclick="setLevel(3)">Level 3</button>
+    <button onclick="startGame()">Start Timer (Optional)</button>
+  </div>
+
+  <div class="circle-container" id="circle"></div>
+  
+  <div class="input-container">
+    <input type="number" id="answer" placeholder="Enter your answer">
+    <button onclick="checkAnswer()">Submit</button>
+  </div>
+  
+  <div class="stopwatch" id="timer">Time Left: 20s</div>
+  <div class="result" id="result"></div>
+  <div class="controls">
+    <button onclick="nextGame()">Next</button>
+  </div>
+  
+
+  <script>
+    const circle = document.getElementById('circle');
+    const timerDisplay = document.getElementById('timer');
+    const resultDisplay = document.getElementById('result');
+    let numbers = [];
+    let totalSum = 0;
+    let timeLeft = 20;
+    let timer;
+    let currentLevel = 1;
+
+    // Set Level
+    function setLevel(level) {
+      currentLevel = level;
+      nextGame();
+    }
+
+    // Generate numbers based on the level
+    function generateNumbers() {
+      circle.innerHTML = '';
+      numbers = [];
+      totalSum = 0;
+      let numCount = 8;
+      let numRange = [1, 9];
+
+      if (currentLevel === 1) {
+        numCount = 8;
+        numRange = [1, 9];
+      } else if (currentLevel === 2) {
+        numCount = 4;
+        numRange = [10, 99];
+      } else if (currentLevel === 3) {
+        numCount = 8;
+        numRange = [10, 99];
+      }
+
+      for (let i = 0; i < numCount; i++) {
+        const angle = (i / numCount) * 2 * Math.PI;
+        const x = 150 + 120 * Math.cos(angle);
+        const y = 150 + 120 * Math.sin(angle);
+        const randomNumber = Math.floor(Math.random() * (numRange[1] - numRange[0] + 1)) + numRange[0];
+
+        numbers.push(randomNumber);
+        totalSum += randomNumber;
+
+        const numberDiv = document.createElement('div');
+        numberDiv.classList.add('number');
+        numberDiv.style.left = `${x}px`;
+        numberDiv.style.top = `${y}px`;
+        numberDiv.textContent = randomNumber;
+
+        circle.appendChild(numberDiv);
+      }
+    }
+
+    // Start the timer
+    function startTimer() {
+      clearInterval(timer); // Reset timer if already running
+      timeLeft = 20;
+      timerDisplay.textContent = `Time Left: 20s`;
+
+      timer = setInterval(() => {
+        timeLeft -= 1;
+        timerDisplay.textContent = `Time Left: ${timeLeft}s`;
+
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          timerDisplay.textContent = 'Time’s up!';
+          resultDisplay.textContent = `❌ Time's up! The correct answer was ${totalSum}.`;
+        }
+      }, 1000);
+    }
+
+    // Start Game
+    function startGame() {
+      startTimer();
+    }
+
+    // Next Game
+    function nextGame() {
+      clearInterval(timer);
+      timerDisplay.textContent = 'Time Left: 20s';
+      resultDisplay.textContent = '';
+      document.getElementById('answer').value = '';
+      generateNumbers();
+    }
+
+    // Check the user's answer
+    function checkAnswer() {
+      const userAnswer = parseInt(document.getElementById('answer').value, 10);
+      if (userAnswer === totalSum) {
+        resultDisplay.textContent = '✅ Correct! Well done.';
+      } else {
+        resultDisplay.textContent = `❌ Incorrect. The correct answer was ${totalSum}.`;
+      }
+      clearInterval(timer);
+    }
+
+    // Initialize the game
+    nextGame();
+  </script>
+</body>
+</html>
